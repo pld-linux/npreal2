@@ -1,0 +1,35 @@
+--- tmp/moxa/nport.h~	2007-02-02 09:12:14.000000000 +0100
++++ tmp/moxa/nport.h	2007-11-25 19:13:44.000000000 +0100
+@@ -15,8 +15,8 @@
+ #define     MAX_DEVICE_NUM        10
+ 
+ #define     TEMPDIR     "/tmp/moxa"
+-#define     NPPATH      "/usr/lib/npreal2"
+-#define     DRIVERPATH  "/usr/lib/npreal2/driver"
++#define     NPPATH      "/var/lib/npreal2"
++#define     DRIVERPATH  "/var/lib/npreal2/driver"
+ 
+ 
+ #define		NP5210          0x0322
+--- tmp/moxa/mxmknod~	2006-02-17 09:33:10.000000000 +0100
++++ tmp/moxa/mxmknod	2007-11-28 20:16:20.071822163 +0100
+@@ -6,7 +6,7 @@
+ }
+ 
+ [ -e $dev/$1 ] && {
+-    ./mxrmnod $1
++    /var/lib/npreal2/driver/mxrmnod $1
+ }
+ 
+ if [ -f	/etc/sysconfig/selinux ]
+--- tmp/moxa/npreal2d.c~	2007-11-28 21:13:38.788770439 +0100
++++ tmp/moxa/npreal2d.c	2007-11-28 21:13:13.014100730 +0100
+@@ -453,7 +453,7 @@
+ // Scott: 2005-10-03
+ // The original design will lead to an incorrect workpath.
+ // Use fixed path instead.
+-    sprintf(workpath, "/usr/lib/npreal2/driver");
++    sprintf(workpath, "/var/lib/npreal2/driver");
+ 
+     /*
+      * Prepare the full-path file names of LOG/Configuration.
