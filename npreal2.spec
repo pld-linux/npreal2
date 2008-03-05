@@ -5,13 +5,12 @@
 %bcond_without	userspace	# don't build userspace programs
 %bcond_with	verbose		# verbose build (V=1)
 #
-
 %if %{without kernel}
 %undefine	with_dist_kernel
 %endif
-
 %define		rel	0.5
-Summary:	Moxa
+Summary:	Moxa NPort Linux Real TTY driver
+Summary(pl.UTF-8):	Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort
 Name:		npreal2
 Version:	1.14
 Release:	%{rel}
@@ -28,26 +27,30 @@ BuildRequires:	rpmbuild(macros) >= 1.330
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-desc
+Moxa NPort Linux Real TTY driver, which maps NPort serial port to host
+tty port.
 
 %description -l pl
-desc
+Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort. Pozwala
+przypisać port szeregowy urządzenia NPort do portu tty w systemie.
 
 %package -n kernel%{_alt_kernel}-char-npreal2
-Summary:	Linux driver for npreal2
-Summary(pl.UTF-8):	Sterownik dla Linuksa do npreal2
+Summary:	Linux Real TTY driver for Moxa NPort devices
+Summary(pl.UTF-8):	Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 %{?with_dist_kernel:%requires_releq_kernel}
 Requires(post,postun):	/sbin/depmod
 
 %description -n kernel%{_alt_kernel}-char-npreal2
-This is driver for npreal2 for Linux.
+Moxa NPort Linux Real TTY driver, which maps NPort serial port to host
+tty port.
 
 This package contains Linux module.
 
 %description -n kernel%{_alt_kernel}-char-npreal2 -l pl.UTF-8
-Sterownik dla Linuksa do npreal2.
+Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort. Pozwala
+przypisać port szeregowy urządzenia NPort do portu tty w systemie.
 
 Ten pakiet zawiera modul jadra Linuksa.
 
