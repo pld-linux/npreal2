@@ -19,6 +19,7 @@ Group:		Base/Kernel
 Source0:	http://www.moxa.com/drivers/Nport/Admin/Linux/V1.14/%{name}_%{version}_Build_07062310.tgz
 # Source0-md5:	fe81633814731d27dcc9d36e30343ab4
 Patch0:		%{name}-paths.patch
+Patch1:		%{name}-2.6.25.patch
 URL:		http://www.moxa.com/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.14}
@@ -57,6 +58,7 @@ Ten pakiet zawiera modul jadra Linuksa.
 %prep
 %setup -q -n tmp/moxa
 %patch0 -p2
+%patch1 -p2
 
 %build
 %if %{with userspace}
