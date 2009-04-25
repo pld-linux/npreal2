@@ -1,0 +1,467 @@
+diff -Nur tmp.ori/moxa/Makefile tmp.mod/moxa/Makefile
+--- tmp.ori/moxa/Makefile	2007-05-02 09:24:17.000000000 +0200
++++ tmp.mod/moxa/Makefile	2008-11-06 13:44:47.000000000 +0100
+@@ -12,29 +12,25 @@
+ ppc64: module ppc64npreal2d tools
+ 
+ npreal2d: 	npreal2d.o
+-	cc	npreal2d.o -o npreal2d
+-	strip	npreal2d
++	$(CC)	npreal2d.o -o npreal2d
+ 
+ npreal2d.o:	npreal2d.c
+ 	$(CC) -c npreal2d.c
+ 
+ SSLnpreal2d: 	SSLnpreal2d.o
+-	cc	npreal2d.o -o npreal2d libssl.so 
+-	strip	npreal2d
++	$(CC)	npreal2d.o -o npreal2d libssl.so
+ 
+ SSLnpreal2d.o:	npreal2d.c
+ 	$(CC) -c -DSSL_ON -DOPENSSL_NO_KRB5 npreal2d.c -I$(PATH1)/include
+ 	
+ SSL64npreal2d: 	SSL64npreal2d.o
+-	cc	-m64 npreal2d.o -o npreal2d libssl.so 
+-	strip	npreal2d
++	$(CC)	-m64 npreal2d.o -o npreal2d libssl.so
+ 
+ SSL64npreal2d.o:	npreal2d.c
+ 	$(CC) -c -m64 -DSSL_ON -DOPENSSL_NO_KRB5 npreal2d.c -I$(PATH1)/include
+ 	
+ ppc64npreal2d: 	ppc64npreal2d.o
+-	cc	-mpowerpc64 npreal2d.o -o npreal2d libssl.so 
+-	strip	npreal2d
++	$(CC)	-mpowerpc64 npreal2d.o -o npreal2d libssl.so
+ 
+ ppc64npreal2d.o:	npreal2d.c
+ 	$(CC) -c -mpowerpc64 -DSSL_ON -DOPENSSL_NO_KRB5 npreal2d.c -I$(PATH1)/include
+@@ -57,23 +61,18 @@
+ 
+ mxaddsvr: mxaddsvr.c
+ 	$(CC) -o mxaddsvr mxaddsvr.c
+-	strip mxaddsvr
+ 
+ mxdelsvr: mxdelsvr.c
+ 	$(CC) -o mxdelsvr mxdelsvr.c
+-	strip mxdelsvr
+ 
+ mxcfmat: mxcfmat.c
+ 	$(CC) -o mxcfmat mxcfmat.c
+-	strip mxcfmat
+ 
+ mxloadsvr: mxloadsvr.c
+ 	$(CC) -o mxloadsvr mxloadsvr.c
+-	strip mxloadsvr
+ 	
+ mxsetsec: mxsetsec.c
+ 	$(CC) -o mxsetsec mxsetsec.c
+-	strip mxsetsec
+ 	
+ clean:
+ 	rm -f *.o
+diff -Nur tmp.ori/moxa/mxaddsvr.c tmp.mod/moxa/mxaddsvr.c
+--- tmp.ori/moxa/mxaddsvr.c	2007-04-02 11:54:28.000000000 +0200
++++ tmp.mod/moxa/mxaddsvr.c	2008-11-06 16:02:37.000000000 +0100
+@@ -301,7 +301,7 @@
+         }
+     }
+ 
+-    sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+     f = fopen (tmpstr, "r");
+     if (f == NULL)
+     {
+@@ -415,11 +415,11 @@
+         return 0;
+     }
+ 
+-    sprintf(tmpstr, "cp -f /tmp/npr_tmpfile2 %s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "cp -f /tmp/npr_tmpfile2 %s/npreal2d.cf", NPPATH);
+     system(tmpstr);
+     system("rm -f /tmp/npr_tmpfile2");
+ 
+-    sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+     f = fopen (tmpstr, "a+");
+     if (f == NULL)
+     {
+@@ -458,9 +458,11 @@
+     }
+     fclose(f);
+ 
+-    printf("Added server: %s\n\n", ip);
+-    sprintf(tmpstr, "%s/mxloadsvr", DRIVERPATH);
+-    system(tmpstr);
++    printf("Added server: %s, launch mxloadsvr to recreate devicefiles.\n\n", ip);
++//    system("/usr/bin/mxloadsvr");
++	
++//    get of your dirty hands from system files
++/*
+     if (os == "linux")
+     {
+         system("chmod +x /etc/rc.d/rc.local");
+@@ -473,6 +475,7 @@
+     {
+         system("chmod +x /etc/rc.d/boot.local");
+     }
++    */
+ 
+     free(tmpstr);
+     free(tmp1);
+diff -Nur tmp.ori/moxa/mxcfmat.c tmp.mod/moxa/mxcfmat.c
+--- tmp.ori/moxa/mxcfmat.c	2007-02-02 09:11:31.000000000 +0100
++++ tmp.mod/moxa/mxcfmat.c	2008-11-06 13:27:16.000000000 +0100
+@@ -16,7 +16,7 @@
+     len = 256;
+     token = (char *)malloc(256);
+ 
+-    sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+     f = fopen (tmpstr, "r");
+     if (f == NULL)
+     {
+@@ -88,7 +88,7 @@
+     fclose(ft);
+     fclose(f);
+ 
+-    sprintf(tmpstr, "cp -f /tmp/npr_tmpfile3 %s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "cp -f /tmp/npr_tmpfile3 %s/npreal2d.cf", NPPATH);
+     system(tmpstr);
+     system("rm -f /tmp/npr_tmpfile3");
+ 
+diff -Nur tmp.ori/moxa/mxdelsvr.c tmp.mod/moxa/mxdelsvr.c
+--- tmp.ori/moxa/mxdelsvr.c	2007-02-02 09:11:43.000000000 +0100
++++ tmp.mod/moxa/mxdelsvr.c	2008-11-06 16:05:58.000000000 +0100
+@@ -58,7 +58,7 @@
+     {
+ 
+         sprintf(del, "%s", argv[1]);
+-        sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++        sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+         f = fopen (tmpstr, "r");
+         if (f == NULL)
+         {
+@@ -110,10 +110,9 @@
+ 
+         memset(svrList, 0x0, 256*50);
+         memset(total, 0x0, 256*sizeof(int));
+-        sprintf(tmpstr, "%s/mxcfmat", DRIVERPATH);
+-        system(tmpstr);
++        system("/usr/bin/mxcfmat");
+ 
+-        sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++        sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+         f = fopen (tmpstr, "r");
+         if (f == NULL)
+         {
+@@ -191,7 +190,7 @@
+         strcpy(del, svrList[atoi(c)-1]);
+     }
+ 
+-    sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+     f = fopen (tmpstr, "r");
+     if (f == NULL)
+     {
+@@ -211,7 +210,7 @@
+ 
+     /* delete all device file configured in npreal2d.cf */
+     memset(tmpstr, '\0', 1024);
+-    sprintf(tmpstr, "awk '$0 !~ /#/' %s/npreal2d.cf |", DRIVERPATH);
++    sprintf(tmpstr, "awk '$0 !~ /#/' %s/npreal2d.cf |", NPPATH);
+     sprintf(tmpstr, "%s awk '$7 != \"\" ' |", tmpstr);
+     sprintf(tmpstr, "%s awk '$8 != \"\" ' |", tmpstr);
+     sprintf(tmpstr, "%s awk '{system(\"%s/mxrmnod \"$7); system(\"%s/mxrmnod \"$8)}'", tmpstr, DRIVERPATH, DRIVERPATH);
+@@ -254,6 +253,7 @@
+     fclose(ft);
+     fclose (f);
+ 
++    /*
+     os = "linux";
+     f = fopen ("/etc/redhat-release", "r");
+     if (f != NULL)
+@@ -275,12 +275,13 @@
+             if (f != NULL)
+             {
+                 os = "debian";
+-            } /* else {
++            } */ /* else {
+                             printf("Your Operating System is NOT supported.\n\n");
+                             free(tmpstr);
+                             free(tmp);
+                             return -1;
+                         } */
++    /*
+         }
+     }
+ 
+@@ -310,14 +311,15 @@
+ 
+         }
+     }
++    */
+ 
+-    sprintf(tmpstr, "cp -f /tmp/nprtmp_cf %s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "cp -f /tmp/nprtmp_cf %s/npreal2d.cf", NPPATH);
+     system(tmpstr);
+     system("rm -f /tmp/nprtmp_cf");
+ 
+     printf("Deleted server: %s\n\n", del);
+-    sprintf(tmpstr, "%s/mxloadsvr", DRIVERPATH);
+-    system(tmpstr);
++    /*
++    system("/usr/bin/mxloadsvr");
+     if (os == "linux")
+     {
+         system("chmod +x /etc/rc.d/rc.local");
+@@ -330,6 +332,7 @@
+     {
+         system("chmod +x /etc/rc.d/boot.local");
+     }
++    */
+ 
+ 
+     free(tmpstr);
+diff -Nur tmp.ori/moxa/mxinst tmp.mod/moxa/mxinst
+--- tmp.ori/moxa/mxinst	2007-05-29 09:51:21.000000000 +0200
++++ tmp.mod/moxa/mxinst	2008-11-06 13:12:18.000000000 +0100
+@@ -184,7 +184,7 @@
+ ########################################################
+ # check configuration file. (npreal2d.cf)
+ ########################################################
+-if [ -f /usr/lib/npreal2/driver/npreal2d.cf ]
++if [ -f /usr/lib/npreal2/npreal2d.cf ]
+ then
+     echo 'There is an Real TTY Driver installed in your system.'
+     echo 'Continue to install will overwrite the old driver.'
+@@ -324,7 +324,7 @@
+ mkdir -p $driverPath > /dev/null 2>&1
+ 
+ 
+-[ -f /usr/lib/npreal2/driver/npreal2d.cf ] || {
++[ -f /usr/lib/npreal2/npreal2d.cf ] || {
+     echo -n "Copying configurations files ... "
+     cp -f $TempDir/npreal2d.cf $driverPath
+ 
+diff -Nur tmp.ori/moxa/mxloadsvr.c tmp.mod/moxa/mxloadsvr.c
+--- tmp.ori/moxa/mxloadsvr.c	2007-02-02 09:12:00.000000000 +0100
++++ tmp.mod/moxa/mxloadsvr.c	2008-11-06 16:13:23.000000000 +0100
+@@ -22,7 +22,7 @@
+ 
+     /* check if npreal2d.cf is empty or not */
+     memset(tmpstr, '\0', 1024);
+-    sprintf(tmpstr, "grep -v \"#\" %s/npreal2d.cf |", DRIVERPATH);
++    sprintf(tmpstr, "grep -v \"#\" %s/npreal2d.cf |", NPPATH);
+     sprintf(tmpstr, "%s grep -v \"ttymajor\" |", tmpstr);
+     sprintf(tmpstr, "%s grep -v \"calloutmajor\" > /tmp/nprtmp_checkcf", tmpstr);
+     system(tmpstr);
+@@ -37,11 +37,11 @@
+     if (filelength(fileno(f)))
+     {
+         memset(tmpstr, '\0', 1024);
+-        sprintf(tmpstr, "cp -f %s/config %s/npreal2d.cf", DRIVERPATH, DRIVERPATH);
++        sprintf(tmpstr, "cp -f %s/config %s/npreal2d.cf", NPPATH, NPPATH);
+         system(tmpstr);
+ 
+         memset(tmpstr, '\0', 1024);
+-        sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++        sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+         ft = fopen (tmpstr, "a+");
+         if (ft == NULL)
+         {
+@@ -247,7 +247,7 @@
+     memset(tmpstr, '\0', 1024);
+     daemon_flag = 0;
+     cf_flag = 0;
+-    sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+     f = fopen (tmpstr, "r");
+     if (f == NULL)
+     {
+@@ -319,7 +319,7 @@
+ 
+     /* delete all device file configured in npreal2d.cf */
+     memset(tmpstr, '\0', 1024);
+-    sprintf(tmpstr, "awk '$0 !~ /#/' %s/npreal2d.cf |", DRIVERPATH);
++    sprintf(tmpstr, "awk '$0 !~ /#/' %s/npreal2d.cf |", NPPATH);
+     sprintf(tmpstr, "%s awk '$6 != \"\" ' |", tmpstr);
+     sprintf(tmpstr, "%s awk '$7 != \"\" ' |", tmpstr);
+     sprintf(tmpstr, "%s awk '{system(\"%s/mxrmnod \"$6); system(\"%s/mxrmnod \"$7)}'", tmpstr, DRIVERPATH, DRIVERPATH);
+@@ -327,7 +327,7 @@
+ 
+     /* create all device file configured in npreal2d.cf */
+     memset(tmpstr, '\0', 1024);
+-    sprintf(tmpstr, "awk '$0 !~ /#/' %s/npreal2d.cf |", DRIVERPATH);
++    sprintf(tmpstr, "awk '$0 !~ /#/' %s/npreal2d.cf |", NPPATH);
+     sprintf(tmpstr, "%s awk '$7 != \"\" ' |", tmpstr);
+     sprintf(tmpstr, "%s awk '$8 != \"\" ' |", tmpstr);
+     sprintf(tmpstr, "%s awk '{system(\"%s/mxmknod \" $7 \" %d \" $1); system(\"%s/mxmknod \" $8 \" %d \" $1)}'", tmpstr, DRIVERPATH, ttymajor, DRIVERPATH, calloutmajor);
+@@ -340,12 +340,14 @@
+     /* please notice not to remove the daemon starting string */
+     if (os == "linux")
+     {
++    /*
+         system("grep -v 'modprobe npreal2' /etc/rc.d/rc.local > /tmp/nprtmp_rclocal 2>&1");
+         sprintf(tmpstr, "modprobe npreal2 ttymajor=%d calloutmajor=%d verbose=0\n", ttymajor, calloutmajor);
+         if (modify_script("/tmp/nprtmp_rclocal", "/etc/rc.d/rc.local", tmpstr) != 1)
+             return 0;
+         system("rm -f /tmp/nprtmp_rclocal > /dev/null 2>&1");
+         system("chmod +x /etc/rc.d/rc.local");
++    */
+ 
+     }
+     else if (os == "debian")
+@@ -415,6 +417,7 @@
+ 
+ 
+     /* check if daemon is running or not */
++    /*
+     memset(tmpstr, '\0', 1024);
+     sprintf(tmpstr, "ps -ef | grep npreal2d | grep -v grep");
+     sprintf(tmpstr, "%s > /tmp/nprtmp_checkdaemon", tmpstr);
+@@ -436,13 +439,13 @@
+         daemon_flag = 0;
+     }
+     fclose(f);
++    */
+ 
+     /* check if npreal2d.cf is empty or not */
+-    sprintf(tmpstr, "%s/mxcfmat", DRIVERPATH);
+-    system(tmpstr);
++    system("/usr/bin/mxcfmat");
+ 
+     memset(tmpstr, '\0', 1024);
+-    sprintf(tmpstr, "grep -v \"#\" %s/npreal2d.cf |", DRIVERPATH);
++    sprintf(tmpstr, "grep -v \"#\" %s/npreal2d.cf |", NPPATH);
+     sprintf(tmpstr, "%s grep -v \"ttymajor\" |", tmpstr);
+     sprintf(tmpstr, "%s grep -v \"calloutmajor\" > /tmp/nprtmp_checkcf", tmpstr);
+     system(tmpstr);
+@@ -463,12 +466,14 @@
+     else
+     {
+         cf_flag = 0;
++        printf("ConfigFile Empty\n");
+     }
+     fclose(f);
+ 
+     memset(tmpstr, '\0', 1024);
+     if (daemon_flag == 1)
+     {
++    /*
+         if (cf_flag == 1)
+         {
+             memset(tmpstr, '\0', 1024);
+@@ -486,15 +491,16 @@
+             system(tmpstr);
+             DBG_PRINT("daemon=1, cf=0, kill -9 npreal2d\n");
+         }
++    */
+     }
+     else
+     {
+         if (cf_flag == 1)
+         {
+-            sprintf(tmpstr, "%s/npreal2d -t 1", DRIVERPATH);
+-            system(tmpstr);
++        /*
++            system("/usr/sbin/npreal2d -t 1");
+             DBG_PRINT("daemon=0, cf=1, [start daemon] %s\n", tmpstr);
+-
++*/
+         }
+         else
+         {
+@@ -502,6 +508,8 @@
+         }
+     }
+ 
++// DONT TOUCH OUR CONFIGS
++/*
+     memset(tmpstr, '\0', 1024);
+     if (cf_flag == 0)
+     {
+@@ -617,10 +625,8 @@
+             fclose(f);
+         }
+     }
+-
+-    system("rm -f /tmp/nprtmp_checkdaemon");
++*/
+     //system("rm -f /tmp/nprtmp_checkcf");
+-    system("rm -f /tmp/nprtmp_chkstr");
+ 
+     printf("Complete.\n\n");
+     free(tmpstr);
+diff -Nur tmp.ori/moxa/mxsetsec.c tmp.mod/moxa/mxsetsec.c
+--- tmp.ori/moxa/mxsetsec.c	2007-05-29 08:20:01.000000000 +0200
++++ tmp.mod/moxa/mxsetsec.c	2008-11-06 13:25:41.000000000 +0100
+@@ -146,7 +146,7 @@
+     sprintf(tmpstr, "%s/mxcfmat", DRIVERPATH);
+     system(tmpstr);
+ 
+-    sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+     f = fopen (tmpstr, "r");
+     if (f == NULL)
+     {
+@@ -224,7 +224,7 @@
+ 
+     printf("Exit!!\n\n");
+ 
+-    sprintf(tmpstr, "%s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "%s/npreal2d.cf", NPPATH);
+     f = fopen (tmpstr, "r");
+     if (f == NULL)
+     {
+@@ -330,7 +330,7 @@
+         }
+     }
+ 
+-    sprintf(tmpstr, "cp -f /tmp/nprtmp_cf %s/npreal2d.cf", DRIVERPATH);
++    sprintf(tmpstr, "cp -f /tmp/nprtmp_cf %s/npreal2d.cf", NPPATH);
+     system(tmpstr);
+     system("rm -f /tmp/nprtmp_cf");
+ 
+diff -Nur tmp.ori/moxa/npreal2.c tmp.mod/moxa/npreal2.c
+--- tmp.ori/moxa/npreal2.c	2007-06-23 04:30:36.000000000 +0200
++++ tmp.mod/moxa/npreal2.c	2008-11-06 12:17:41.000000000 +0100
+@@ -579,6 +579,8 @@
+ 
+     DBGPRINT(MX_DEBUG_INFO, "Done.\n");
+ 
++    printk("MOXA Async/NPort server family Real TTY driver unloaded\n");
++
+ }
+ #endif
+ 
+diff -Nur tmp.ori/moxa/npreal2d.c tmp.mod/moxa/npreal2d.c
+--- tmp.ori/moxa/npreal2d.c	2008-11-06 11:31:49.000000000 +0100
++++ tmp.mod/moxa/npreal2d.c	2008-11-06 14:50:22.000000000 +0100
+@@ -453,13 +453,13 @@
+ // Scott: 2005-10-03
+ // The original design will lead to an incorrect workpath.
+ // Use fixed path instead.
+-    sprintf(workpath, "/var/lib/npreal2/driver");
++    sprintf(workpath, "/var/lib/npreal2");
+ 
+     /*
+      * Prepare the full-path file names of LOG/Configuration.
+      */
+     sprintf(buf,"%s/npreal2d.cf", workpath);        /* Config file name */
+-    sprintf(EventLog,"%s/npreal2d.log", workpath);  /* Log file name */
++    sprintf(EventLog,"/var/log/npreal2d.log"); 
+ 
+     /*
+      * Open configuration file:
+diff -Nur tmp.ori/moxa/README.TXT tmp.mod/moxa/README.TXT
+--- tmp.ori/moxa/README.TXT	2007-03-30 08:55:35.000000000 +0200
++++ tmp.mod/moxa/README.TXT	2008-11-06 13:14:31.000000000 +0100
+@@ -142,7 +142,7 @@
+       ports equal to (966, 967, 968, ..., 981). 
+       
+      b. Mapping tty ports manually
+-       After entering the directory "/usr/lib/npreal2/driver", you can modify 
++       After entering the directory "/usr/lib/npreal2", you can modify 
+        "npreal2d.cf" to map NPort serial ports to tty ports, and then execute 
+        "mxloadsvr" to activate the modifications.
+       
