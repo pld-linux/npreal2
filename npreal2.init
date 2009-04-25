@@ -1,0 +1,118 @@
+#!/bin/sh
+#
+# npreal2d	This shell script takes care of starting and stopping npreal2
+#
+# chkconfig:	345 90 25
+#
+# description:	npreal2 is an interface to Moxa Async/NPort device. 
+#
+# pidfile:	/var/run/npreal2d.pid
+# config:	/var/lib/npreal2d/npreal2d.cf
+
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+# Get network config
+. /etc/sysconfig/network
+
+
+# Get service config
+[ -f /etc/sysconfig/npreal2d ] && . /etc/sysconfig/npreal2d
+
+# Check that networking is up.
+if is_yes "${NETWORKING}"; then
+	if [ ! -f /var/lock/subsys/network -a "$1" != stop -a "$1" != status ]; then
+		msg_network_down npreal2d
+		exit 1
+	fi
+else
+	exit 0
+fi
+
+DAEMON=/usr/sbin/npreal2d
+
+RETVAL=0
+# See how we were called.
+start() {
+	if [ "x$(grep -v "#" /var/lib/npreal2/npreal2d.cf |grep -E -v "ttymajor|calloutmajor" |wc -l)" == "x0" ]; then
+		nls  "Empty config file, npreal2d won't run"
+		exit;
+	fi
+
+	grep -q npreal2 /proc/modules
+	if [ "x$?" == "x1" ]; then
+		modprobe npreal2
+	fi
+	grep -q npreal2 /proc/modules
+	if [ "x$?" == "x1" ]; then
+		nls "Cannot load npreal2 module, npreal2d won't run"
+		exit;
+	fi
+
+	# Check if the service is already running?
+	if [ ! -f /var/lock/subsys/npreal2d ]; then
+		msg_starting npreal2d
+		daemon $DAEMON -t 0
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/npreal2d
+	else
+		msg_already_running npreal2d
+	fi
+}
+
+stop() {
+	# Stop daemons.
+	if [ -f /var/lock/subsys/npreal2d ]; then
+		msg_stopping npreal2d
+		busy
+		killproc npreal2d -KILL > /dev/null 2>&1
+		sleep 2
+		ok
+		# make sure it's dead
+		rm -f /var/lock/subsys/npreal2d >/dev/null 2>&1
+	else
+		msg_not_running npreal2d
+	fi
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart|force-reload)
+	stop
+	start
+	;;
+  reload)
+	if [ -f /var/lock/subsys/npreal2d ]; then
+		msg_reloading "npreal2d configuration"
+		daemon $DAEMON -rx 'reload'
+		# these AFAIK are also reloaded by -rx reload
+		# msg_reloading "npreal2d logger"
+		# daemon $DAEMON -rx 'logger reload'
+		# msg_reloading "npreal2d extensions"
+		# daemon $DAEMON -rx 'extensions reload'
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/npreal2d
+		ok
+	else
+		msg_not_running npreal2d
+		exit 1
+	fi
+	;;
+  status)
+	status npreal2d
+	exit $?
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|force-reload|status}"
+	exit 3
+esac
+
+exit $RETVAL
