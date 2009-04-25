@@ -8,18 +8,29 @@
 %if %{without kernel}
 %undefine	with_dist_kernel
 %endif
-%define		rel	0.5
+%if "%{_alt_kernel}" != "%{nil}"
+%undefine	with_userspace
+%endif
+%if %{without userspace}
+# nothing to be placed to debuginfo package
+%define		_enable_debug_packages	0
+%endif
+#
+%define		rel	0.1
+%define		pname	npreal2
 Summary:	Moxa NPort Linux Real TTY driver
 Summary(pl.UTF-8):	Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort
-Name:		npreal2
-Version:	1.14
+Name:		%{pname}%{_alt_kernel}
+Version:	1.16
 Release:	%{rel}
 License:	GPL v2
 Group:		Base/Kernel
-Source0:	http://www.moxa.com/drivers/Nport/Admin/Linux/V1.14/%{name}_%{version}_Build_07062310.tgz
-# Source0-md5:	fe81633814731d27dcc9d36e30343ab4
-Patch0:		%{name}-paths.patch
-Patch1:		%{name}-2.6.25.patch
+Source0:	http://www.moxa.com/drivers/DN_Driver/Linux/%{pname}_%{version}_Build_09030513.tgz
+# Source0-md5:	88debad44c0b78337eec4c3d2dceb576
+Source1:	%{pname}.init
+Source2:	%{pname}-modprobe.conf
+Patch0:		%{pname}-paths.patch
+Patch1:		%{pname}-pld.patch
 URL:		http://www.moxa.com/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.14}
@@ -75,20 +86,23 @@ Ten pakiet zawiera modul jadra Linuksa.
 rm -rf $RPM_BUILD_ROOT
 
 %if %{with userspace}
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_sharedstatedir}/%{name}/driver}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_sharedstatedir}/%{pname}/driver,%{_sysconfdir}/rc.d/init.d}
 install mxaddsvr	$RPM_BUILD_ROOT%{_bindir}
 install mxdelsvr	$RPM_BUILD_ROOT%{_bindir}
 install mxcfmat		$RPM_BUILD_ROOT%{_bindir}
 install mxloadsvr	$RPM_BUILD_ROOT%{_bindir}
 install mxsetsec	$RPM_BUILD_ROOT%{_bindir}
-install mxmknod		$RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/driver
-install mxrmnod		$RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/driver
-install npreal2d	$RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/driver
-install npreal2d.cf	$RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/driver
+install mxmknod		$RPM_BUILD_ROOT%{_sharedstatedir}/%{pname}/driver
+install mxrmnod		$RPM_BUILD_ROOT%{_sharedstatedir}/%{pname}/driver
+install npreal2d.cf	$RPM_BUILD_ROOT%{_sharedstatedir}/%{pname}
+install npreal2d	$RPM_BUILD_ROOT%{_sbindir}/npreal2d
+install %{SOURCE1}	$RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/npreal2d
 %endif
 
 %if %{with kernel}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d
 %install_kernel_modules -m npreal2 -d kernel/drivers/char -n npreal2 -s current
+cat %{SOURCE2} >> $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/%{_kernel_ver}/npreal2.conf
 %endif
 
 %clean
@@ -99,6 +113,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun	-n kernel%{_alt_kernel}-char-npreal2
 %depmod %{_kernel_ver}
+
+%post -n npreal2%{_alt_kernel}
+/sbin/chkconfig --add npreal2d
+
+%preun -n npreal2%{_alt_kernel}
+if [ "$1" = "0" ]; then
+	%service -q npreal2d stop
+	/sbin/chkconfig --del npreal2d
+fi
+
 
 %if %{with kernel}
 %files -n kernel%{_alt_kernel}-char-npreal2
@@ -111,10 +135,12 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/*
-%dir %{_sharedstatedir}/%{name}
-%dir %{_sharedstatedir}/%{name}/driver
-%attr(755,root,root) %{_sharedstatedir}/%{name}/driver/mxmknod
-%attr(755,root,root) %{_sharedstatedir}/%{name}/driver/mxrmnod
-%attr(755,root,root) %{_sharedstatedir}/%{name}/driver/npreal2d
-%{_sharedstatedir}/%{name}/driver/npreal2d.cf
+%dir %{_sharedstatedir}/%{pname}
+%dir %{_sharedstatedir}/%{pname}/driver
+%attr(755,root,root) %{_sharedstatedir}/%{pname}/driver/mxmknod
+%attr(755,root,root) %{_sharedstatedir}/%{pname}/driver/mxrmnod
+%attr(755,root,root) %{_sbindir}/npreal2d
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sharedstatedir}/%{pname}/npreal2d.cf
+
+%attr(754,root,root) /etc/rc.d/init.d/npreal2d
 %endif
