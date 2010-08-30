@@ -21,12 +21,12 @@
 Summary:	Moxa NPort Linux Real TTY driver
 Summary(pl.UTF-8):	Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort
 Name:		%{pname}%{_alt_kernel}
-Version:	1.16
+Version:	1.16.15
 Release:	%{rel}
 License:	GPL v2
 Group:		Base/Kernel
-Source0:	http://www.moxa.com/drivers/DN_Driver/Linux/%{pname}_%{version}_Build_09030513.tgz
-# Source0-md5:	88debad44c0b78337eec4c3d2dceb576
+Source0:	http://mtsc.moxa.com:8888/Software/DN/NPort/Driver/RealTTY/ver%{version}/%{pname}_%{version}_Build_10053117.tgz
+# Source0-md5:	c1a22cd0d7a17ac8d883ad159bc684fc
 Source1:	%{pname}.init
 Source2:	%{pname}-modprobe.conf
 Patch0:		%{pname}-paths.patch
