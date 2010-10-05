@@ -40,6 +40,9 @@ start() {
 		exit;
 	fi
 
+	# Make sure we have proper nodes in /dev
+	/usr/bin/mxloadsvr
+
 	grep -q npreal2 /proc/modules
 	if [ "x$?" == "x1" ]; then
 		modprobe npreal2
