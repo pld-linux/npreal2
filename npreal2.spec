@@ -16,7 +16,7 @@
 %define		_enable_debug_packages	0
 %endif
 #
-%define		rel	0.1
+%define		rel	0.2
 %define		pname	npreal2
 Summary:	Moxa NPort Linux Real TTY driver
 Summary(pl.UTF-8):	Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort
@@ -96,7 +96,7 @@ install mxmknod		$RPM_BUILD_ROOT%{_sharedstatedir}/%{pname}/driver
 install mxrmnod		$RPM_BUILD_ROOT%{_sharedstatedir}/%{pname}/driver
 install npreal2d.cf	$RPM_BUILD_ROOT%{_sharedstatedir}/%{pname}
 install npreal2d	$RPM_BUILD_ROOT%{_sbindir}/npreal2d
-install %{SOURCE1}	$RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/npreal2d
+install %{SOURCE1}	$RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/npreal2
 %endif
 
 %if %{with kernel}
@@ -115,12 +115,12 @@ rm -rf $RPM_BUILD_ROOT
 %depmod %{_kernel_ver}
 
 %post -n npreal2%{_alt_kernel}
-/sbin/chkconfig --add npreal2d
+/sbin/chkconfig --add npreal2
 
 %preun -n npreal2%{_alt_kernel}
 if [ "$1" = "0" ]; then
-	%service -q npreal2d stop
-	/sbin/chkconfig --del npreal2d
+	%service -q npreal2 stop
+	/sbin/chkconfig --del npreal2
 fi
 
 
@@ -142,5 +142,5 @@ fi
 %attr(755,root,root) %{_sbindir}/npreal2d
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sharedstatedir}/%{pname}/npreal2d.cf
 
-%attr(754,root,root) /etc/rc.d/init.d/npreal2d
+%attr(754,root,root) /etc/rc.d/init.d/npreal2
 %endif
