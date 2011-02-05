@@ -42,7 +42,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Moxa NPort Linux Real TTY driver, which maps NPort serial port to host
 tty port.
 
-%description -l pl
+%description -l pl.UTF-8
 Sterownik Real TTY dla Linuksa do urządzeń Moxa NPort. Pozwala
 przypisać port szeregowy urządzenia NPort do portu tty w systemie.
 
