@@ -114,10 +114,10 @@ rm -rf $RPM_BUILD_ROOT
 %postun	-n kernel%{_alt_kernel}-char-npreal2
 %depmod %{_kernel_ver}
 
-%post -n npreal2%{_alt_kernel}
+%post
 /sbin/chkconfig --add npreal2
 
-%preun -n npreal2%{_alt_kernel}
+%preun
 if [ "$1" = "0" ]; then
 	%service -q npreal2 stop
 	/sbin/chkconfig --del npreal2
