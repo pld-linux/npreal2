@@ -68,8 +68,8 @@ Ten pakiet zawiera modul jadra Linuksa.
 
 %prep
 %setup -q -n tmp/moxa
-%patch0 -p2
-%patch1 -p2
+%patch -P0 -p2
+%patch -P1 -p2
 
 %build
 %if %{with userspace}
